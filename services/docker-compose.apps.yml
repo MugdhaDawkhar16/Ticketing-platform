@@ -1,0 +1,37 @@
+﻿services:
+  event-service:
+    image: ticketflow-event-service:latest
+    container_name: ticketflow-event-service
+    restart: unless-stopped
+    env_file:
+      - ./event-service/.env
+    environment:
+      PORT: "3001"
+      KAFKA_BROKERS: "ticketing-kafka:29092"
+      REDIS_URL: "redis://ayush-redis:6379"
+      DATABASE_URL: "postgresql://ticketing:ticketing_password@ticketing-postgres:5432/ticketing"
+    ports:
+      - "3001:3001"
+    networks:
+      - services_default
+
+  payment-service:
+    image: ticketflow-payment-service:latest
+    container_name: ticketflow-payment-service
+    restart: unless-stopped
+    env_file:
+      - ./payment-service/.env
+    environment:
+      PORT: "3002"
+      KAFKA_BROKERS: "ticketing-kafka:29092"
+      EVENT_SERVICE_URL: "http://ticketflow-event-service:3001"
+      DATABASE_URL: "postgresql://ticketing:ticketing_password@ticketing-postgres:5432/ticketing"
+      FRONTEND_ORIGIN: "http://localhost:3000"
+    ports:
+      - "3002:3002"
+    networks:
+      - services_default
+
+networks:
+  services_default:
+    external: true

@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  SOLD
+}
+enum UserRole {
+  USER
+  ADMIN
+}
+
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String?
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+
+  events       Event[]
+  bookings     Booking[]
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  venue       String
+  location    String
+  category    String
+  date        DateTime
+
+  organizerId String
+  organizer   User   @relation(fields: [organizerId], references: [id])
+
+  seats     Seat[]
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Seat {
+  id      String     @id @default(uuid())
+  eventId String
+  row     String
+  number  Int
+  price   Decimal    @db.Decimal(10, 2)
+  status  SeatStatus @default(AVAILABLE)
+
+  event        Event         @relation(fields: [eventId], references: [id])
+  bookingSeats BookingSeat[]
+  createdAt    DateTime      @default(now())
+  holdExpiresAt DateTime?
+  @@unique([eventId, row, number])
+  @@index([eventId])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  EXPIRED
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String
+  eventId     String
+  status      BookingStatus @default(PENDING)
+  totalAmount Decimal       @db.Decimal(10, 2)
+
+  user  User          @relation(fields: [userId], references: [id])
+  event Event         @relation(fields: [eventId], references: [id])
+  seats BookingSeat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BookingSeat {
+  id        String @id @default(uuid())
+  bookingId String
+  seatId    String
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  seat    Seat    @relation(fields: [seatId], references: [id])
+
+  @@unique([bookingId, seatId])
+}

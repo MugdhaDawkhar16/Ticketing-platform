@@ -1,0 +1,58 @@
+﻿import express from "express";
+import { Kafka } from "kafkajs";
+import cors from "cors";
+
+import {
+  initializePaymentTable,
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+} from "./payment.js";
+import * as paymentModule from "./payment.js";
+
+type ProcessPayment = (
+  bookingId: string,
+  amount: number,
+  simulateFailure?: boolean,
+) => Promise<any>;
+
+const paymentExports = paymentModule as unknown as {
+  processPayment?: ProcessPayment;
+  default?: ProcessPayment | { processPayment?: ProcessPayment };
+};
+
+const processPayment =
+  paymentExports.processPayment ??
+  (typeof paymentExports.default === "function"
+    ? paymentExports.default
+    : paymentExports.default?.processPayment)!;
+
+const app = express();
+
+const allowedOrigins = (
+  process.env.FRONTEND_ORIGIN || "http://localhost:3000"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
+app.use(express.json());
+
+const brokers = (process.env.KAFKA_BROKERS || "localhost:9092")
+  .split(",")
+  .map((broker) => broker.trim())
+  .filter(Boolean);
+
+const kafka = new Kafka({
+  clientId: "payment-service",
+  brokers,
+});
+
+const producer = kafka.producer();

@@ -60,10 +60,17 @@ router.post("/register", async (req, res) => {
       },
     });
 
-    return res.status(201).json({
-      message: "Registration successful",
-      user,
-    });
+    const token = jwt.sign(
+  { sub: user.id },
+  getJwtSecret(),
+  { expiresIn: "1h", issuer: "ticketflow" }
+);
+
+return res.status(201).json({
+  message: "Registration successful",
+  token,
+  user,
+});
   } catch (error) {
     if (
       typeof error === "object" &&

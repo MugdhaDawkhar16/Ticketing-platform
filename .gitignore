@@ -95,3 +95,6 @@ k8s/*secret*.yml
 k8s/secrets/
 
 ticketflow-images.tar
+
+ticketflow-event-service.tar
+ticketflow-frontend.tar

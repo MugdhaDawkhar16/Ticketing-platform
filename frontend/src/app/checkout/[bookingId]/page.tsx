@@ -7,7 +7,8 @@ import { getAuthToken } from "@/lib/auth";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-const PAYMENT_URL = "http://localhost:3002";
+const PAYMENT_URL =
+  process.env.NEXT_PUBLIC_PAYMENT_URL || "http://localhost:3002";
 
 type Booking = {
   id: string;

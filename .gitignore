@@ -88,3 +88,10 @@ coverage/
 /services/docker-compose.kafka-fix.yml
 *.bak
 *.backup.*
+
+# Local Kubernetes secrets and credentials
+k8s/*secret*.yaml
+k8s/*secret*.yml
+k8s/secrets/
+
+ticketflow-images.tar

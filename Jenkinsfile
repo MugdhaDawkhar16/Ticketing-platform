@@ -9,14 +9,25 @@ pipeline {
         timestamps()
     }
 
+    environment {
+        IMAGE_PREFIX = 'ticketflow'
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
+                script {
+                    env.GIT_SHA = bat(
+                        script: '@git rev-parse --short=12 HEAD',
+                        returnStdout: true
+                    ).trim()
+                    env.IMAGE_TAG = "ci-${env.GIT_SHA}"
+                }
             }
         }
 
-        stage('Validate lockfiles') {
+        stage('Validate Project') {
             steps {
                 bat 'if not exist frontend\\package-lock.json exit /b 1'
                 bat 'if not exist services\\event-service\\package-lock.json exit /b 1'
@@ -24,31 +35,65 @@ pipeline {
             }
         }
 
-        stage('Build Frontend Image') {
+        stage('Frontend Lint') {
             steps {
-                bat 'docker build -t ticketflow-frontend:ci ./frontend'
+                dir('frontend') {
+                    bat 'npm ci'
+                    bat 'npm run lint'
+                }
             }
         }
 
-        stage('Build Event Service Image') {
+        stage('Build Event Service') {
             steps {
-                bat 'docker build -t ticketflow-event-service:ci ./services/event-service'
+                dir('services/event-service') {
+                    bat 'npm ci'
+                    bat 'npm run build'
+                }
             }
         }
 
-        stage('Build Payment Service Image') {
+        stage('Build Payment Service') {
             steps {
-                bat 'docker build -t ticketflow-payment-service:ci ./services/payment-service'
+                dir('services/payment-service') {
+                    bat 'npm ci'
+                    bat 'npm run build'
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                bat 'docker build -t ticketflow-frontend:%IMAGE_TAG% ./frontend'
+                bat 'docker build -t ticketflow-event-service:%IMAGE_TAG% ./services/event-service'
+                bat 'docker build -t ticketflow-payment-service:%IMAGE_TAG% ./services/payment-service'
+            }
+        }
+
+        stage('Write Build Report') {
+            steps {
+                script {
+                    writeFile file: 'ci-build-report.txt', text: """TicketFlow CI Build Report
+Commit: ${env.GIT_SHA}
+Image tag: ${env.IMAGE_TAG}
+Frontend image: ticketflow-frontend:${env.IMAGE_TAG}
+Event service image: ticketflow-event-service:${env.IMAGE_TAG}
+Payment service image: ticketflow-payment-service:${env.IMAGE_TAG}
+Registry push: No
+Automatic deployment: No
+"""
+                }
+                archiveArtifacts artifacts: 'ci-build-report.txt', fingerprint: true
             }
         }
     }
 
     post {
         success {
-            echo 'All three TicketFlow Docker images built successfully.'
+            echo "TicketFlow CI passed. Image tag: ${env.IMAGE_TAG}"
         }
         failure {
-            echo 'TicketFlow CI failed. Review the stage logs above.'
+            echo 'TicketFlow CI failed. Review the first failing stage in Console Output.'
         }
     }
 }

@@ -106,8 +106,12 @@ export default function OrganizerPage() {
   }
 
   useEffect(() => {
+  const timeout = window.setTimeout(() => {
     void loadDashboard();
-  }, []);
+  }, 0);
+
+  return () => window.clearTimeout(timeout);
+}, []);
 
   async function deleteEvent(event: EventItem) {
     if (

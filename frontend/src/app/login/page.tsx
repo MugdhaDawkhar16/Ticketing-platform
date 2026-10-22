@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { saveAuthSession, type TicketFlowUser } from "@/lib/auth";
+import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -62,9 +63,9 @@ function LoginForm() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-12 text-white">
       <section className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-2xl">
-        <a href="/" className="text-xl font-black">
+        <Link href="/" className="text-xl font-black">
           TICKET<span className="text-violet-400">FLOW</span>
-        </a>
+        </Link>
 
         <h1 className="mt-8 text-3xl font-bold">
           {mode === "login" ? "Welcome back" : "Create your account"}

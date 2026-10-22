@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getAuthToken } from "@/lib/auth";
 const API_URL =
@@ -92,7 +92,7 @@ function CheckoutContent() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
- async function loadBooking() {
+const loadBooking = useCallback(async (): Promise<Booking> => {
   const token = getAuthToken();
 
   if (!token) {
@@ -125,34 +125,35 @@ function CheckoutContent() {
     throw new Error(data.message || "Could not load booking");
   }
 
-  setBooking(data);
   return data as Booking;
-}
+}, [bookingId, router]);
   // Load the booking when this page opens.
  
 useEffect(() => {
   let active = true;
 
-  loadBooking()
-    .then((data) => {
-      if (active) setBooking(data);
-    })
-    .catch((err) => {
-      if (active) {
-        setError(
-          err instanceof Error ? err.message : "Could not load booking"
-        );
-      }
-    })
-    .finally(() => {
-      if (active) setLoading(false);
-    });
+  const timeout = window.setTimeout(() => {
+    void loadBooking()
+      .then((data) => {
+        if (active) setBooking(data);
+      })
+      .catch((err) => {
+        if (active) {
+          setError(
+            err instanceof Error ? err.message : "Could not load booking"
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+  }, 0);
 
   return () => {
     active = false;
+    window.clearTimeout(timeout);
   };
-}, [bookingId]);
-
+}, [loadBooking]);
 
   async function handlePayment() {
     if (!booking || paying || booking.status !== "PENDING") return;

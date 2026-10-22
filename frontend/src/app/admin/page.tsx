@@ -141,8 +141,14 @@ export default function AdminPage() {
   }, [api, token, tab, search, bookingStatus]);
 
   useEffect(() => {
-    if (loggedIn && token) void loadTab();
-  }, [loggedIn, token, loadTab]);
+  if (!loggedIn || !token) return;
+
+  const timeout = window.setTimeout(() => {
+    void loadTab();
+  }, 0);
+
+  return () => window.clearTimeout(timeout);
+}, [loggedIn, token, loadTab]);
 
   async function login(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

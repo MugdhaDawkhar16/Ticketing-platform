@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getAuthToken } from "@/lib/auth";
+import Link from "next/dist/client/link";
 type EventDetails = {
   id: string;
   name: string;
@@ -83,16 +84,20 @@ function EventDetailsContent() {
   }, [eventId]);
 
   useEffect(() => {
+  const timeout = window.setTimeout(() => {
     void loadData();
+  }, 0);
 
-    // Refresh availability periodically so other users' bookings
-    // are reflected in this page.
-    const interval = window.setInterval(() => {
-      void loadData();
-    }, 5000);
+  // Refresh availability every five seconds.
+  const interval = window.setInterval(() => {
+    void loadData();
+  }, 5000);
 
-    return () => window.clearInterval(interval);
-  }, [loadData]);
+  return () => {
+    window.clearTimeout(timeout);
+    window.clearInterval(interval);
+  };
+}, [loadData]);
 
   async function holdSeat() {
   if (!selectedSeatId || booking) return;
@@ -163,16 +168,16 @@ function EventDetailsContent() {
     <main className="min-h-screen bg-slate-950 text-white">
       <header className="border-b border-white/10 px-6 py-5">
         <div className="mx-auto max-w-6xl">
-          <a href="/" className="text-xl font-black">
-            TICKET<span className="text-violet-400">FLOW</span>
-          </a>
+          <Link href="/" className="text-xl font-black">
+            TICKETFLOW
+          </Link>
         </div>
       </header>
 
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <a href="/" className="text-sm text-violet-300 hover:text-violet-200">
+        <Link href="/" className="text-sm text-violet-300 hover:text-violet-200">
           ← All events
-        </a>
+        </Link>
 
         <section className="mt-6 rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950/80 to-slate-900 p-8 md:p-12">
           <span className="text-sm font-semibold uppercase tracking-widest text-violet-300">

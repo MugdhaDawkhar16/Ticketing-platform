@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { getAuthToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -185,12 +186,12 @@ export default function MyBookingsPage() {
           ))}
         </div>
 
-        <a
+        <Link
           href="/"
           className="mt-8 inline-block rounded-xl bg-indigo-500 px-5 py-3 font-semibold hover:bg-indigo-400"
         >
           Browse Events
-        </a>
+        </Link>
       </div>
     </main>
   );

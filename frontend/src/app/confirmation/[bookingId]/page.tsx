@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { getAuthToken } from "@/lib/auth";
 import { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/dist/client/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -119,12 +120,12 @@ function ConfirmationContent() {
           </div>
         )}
 
-        <a
+        <Link
           href="/"
           className="mt-6 inline-block rounded-xl bg-indigo-500 px-5 py-3 font-semibold"
         >
           Back to Events
-        </a>
+        </Link>
       </div>
     </main>
   );

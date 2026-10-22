@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
+import Link from "next/link";
 type Event = {
   id: string;
   name: string;
@@ -76,9 +76,9 @@ export default function Home() {
     <main className="min-h-screen bg-slate-950 text-white">
       <nav className="border-b border-white/10">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-2xl font-black tracking-tight">
+          <Link href="/" className="text-2xl font-black tracking-tight">
             TICKET<span className="text-violet-400">FLOW</span>
-          </a>
+          </Link>
           <span className="text-sm text-slate-400">
             Discover your next experience
           </span>

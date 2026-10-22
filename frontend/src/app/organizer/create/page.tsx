@@ -1,6 +1,6 @@
 "use client";
 
-import {  useState,useEffect } from "react";
+import {  useState } from "react";
 import { useRouter } from "next/navigation";
 
 const API_URL =
@@ -10,13 +10,7 @@ const ORGANIZER_ID = "f79b0d30-ad18-4e75-8a09-23076bf6f41a";
 
 export default function CreateEventPage() {
   const router = useRouter();
- const [minDate, setMinDate] = useState("");
-
-useEffect(() => {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  setMinDate(now.toISOString().slice(0, 16));
-}, []);
+ const [minDate] = useState("");
   const [form, setForm] = useState({
     name: "",
     description: "",

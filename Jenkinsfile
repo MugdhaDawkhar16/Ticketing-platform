@@ -44,16 +44,18 @@ pipeline {
             }
         }
 
-       stage('Build Event Service') {
-    steps {
-        dir('services/event-service') {
-            bat 'npm ci'
-            withEnv(['DATABASE_URL=postgresql://ci:ci@localhost:5432/ticketflow_ci']) {
-                bat 'npm run build'
+       
+        stage('Build Event Service') {
+            steps {
+                dir('services/event-service') {
+                    bat 'npm ci'
+                    bat 'npm test'
+                    withEnv(['DATABASE_URL=postgresql://ci:ci@localhost:5432/ticketflow_ci']) {
+                        bat 'npm run build'
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Build Payment Service') {
             steps {

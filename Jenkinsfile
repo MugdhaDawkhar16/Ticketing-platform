@@ -61,6 +61,7 @@ pipeline {
             steps {
                 dir('services/payment-service') {
                     bat 'npm ci'
+                    bat 'npm test'
                     bat 'npm run build'
                 }
             }
